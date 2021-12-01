@@ -3,7 +3,6 @@ use std::{
     error::Error,
     fs::File,
     io::{self, BufRead, BufReader},
-    str::FromStr,
 };
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
@@ -28,6 +27,8 @@ pub fn get_args() -> MyResult<Config> {
         )
         .arg(
             Arg::with_name("window")
+                .short("w")
+                .long("window")
                 .value_name("WINDOW")
                 .help("Window size")
                 .default_value("3"),
@@ -36,7 +37,7 @@ pub fn get_args() -> MyResult<Config> {
 
     let window = matches
         .value_of("window")
-        .map(parse_int)
+        .map(parse_positive_int)
         .transpose()
         .map_err(|e| format!("Invalid window \"{}\"", e))?;
 
@@ -47,28 +48,30 @@ pub fn get_args() -> MyResult<Config> {
 }
 
 // --------------------------------------------------
-fn parse_int<T: FromStr>(val: &str) -> MyResult<T> {
-    val.parse()
-        .map_err(|_| format!("Invalid integer \"{}\"", val).into())
+fn parse_positive_int(val: &str) -> MyResult<usize> {
+    match val.parse() {
+        Ok(n) if n > 0 => Ok(n),
+        _ => Err(From::from(val)),
+    }
 }
 
 // --------------------------------------------------
 #[test]
-fn test_parse_int() {
-    // Parse positive int as usize
-    let res = parse_int::<usize>("1");
+fn test_parse_positive_int() {
+    // 3 is an OK integer
+    let res = parse_positive_int("3");
     assert!(res.is_ok());
-    assert_eq!(res.unwrap(), 1usize);
+    assert_eq!(res.unwrap(), 3);
 
-    // Parse negative int as i32
-    let res = parse_int::<i32>("-1");
-    assert!(res.is_ok());
-    assert_eq!(res.unwrap(), -1i32);
-
-    // Fail on a string
-    let res = parse_int::<i64>("foo");
+    // Any string is an error
+    let res = parse_positive_int("foo");
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().to_string(), "Invalid integer \"foo\"");
+    assert_eq!(res.unwrap_err().to_string(), "foo".to_string());
+
+    // A zero is an error
+    let res = parse_positive_int("0");
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().to_string(), "0".to_string());
 }
 
 // --------------------------------------------------
