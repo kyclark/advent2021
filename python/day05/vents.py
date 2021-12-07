@@ -44,7 +44,7 @@ def main() -> None:
     grid = defaultdict(int)
 
     for line in map(str.rstrip, args.file):
-        print(f'>>> line {line}')
+        # print(f'>>> line {line}')
         start, _, stop = line.split(' ')
         x1, y1 = map(int, start.split(','))
         x2, y2 = map(int, stop.split(','))
@@ -55,13 +55,13 @@ def main() -> None:
         xs = range(x1, x2 - 1, -1) if x1 > x2 else range(x1, x2 + 1)
         ys = range(y1, y2 - 1, -1) if y1 > y2 else range(y1, y2 + 1)
 
-        print(f'({x1}, {y1}) -> ({x2}, {y2})')
+        # print(f'({x1}, {y1}) -> ({x2}, {y2})')
         for x in xs:
             for y in ys:
-                print(f'({x}, {y})')
+                # print(f'({x}, {y})')
                 grid[(x, y)] += 1
 
-        show_grid(grid)
+        # show_grid(grid)
 
     print(len([v for v in grid.values() if v > 1]))
 
