@@ -52,8 +52,6 @@ def main() -> None:
     for age in map(int, args.state.split(',')):
         ages[age] += 1
 
-    print(ages)
-
     for day in range(1, args.days + 1):
         print(f'Day {day:04d}')
         new = defaultdict(int)
